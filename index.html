@@ -5,264 +5,161 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>📄 منشئ ملفات PDF الاحترافي</title>
 
-<!-- مكتبة html2pdf لإنشاء PDF -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<!-- jsPDF لدعم العربي بشكل صحيح -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
-/* ===== الخطوط ===== */
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Amiri:wght@400;700&family=Tajawal:wght@400;700&display=swap');
 
-/* ===== Reset ===== */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Cairo', 'Segoe UI', sans-serif;
-}
-
-body {
-  background: #f0f2f5;
-  color: #333;
-  min-height: 100vh;
-}
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Cairo','Segoe UI',sans-serif; }
+body { background:#f0f2f5; color:#333; min-height:100vh; }
 
 header {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
-  padding: 20px;
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  background: linear-gradient(135deg,#667eea,#764ba2);
+  color:white; padding:18px; text-align:center;
+  box-shadow:0 4px 12px rgba(0,0,0,0.15);
 }
+header h1 { font-size:1.6rem; margin-bottom:4px; }
+header p { opacity:.9; font-size:.9rem; }
 
-header h1 { font-size: 1.8rem; margin-bottom: 5px; }
-header p { opacity: 0.9; font-size: 0.95rem; }
+.save-status {
+  display:inline-block; margin-top:8px; padding:3px 12px;
+  background:rgba(255,255,255,.2); border-radius:20px;
+  font-size:.75rem; transition:all .3s;
+}
+.save-status.saving { background:#f6ad55; }
+.save-status.saved  { background:#48bb78; }
 
-/* ===== Layout ===== */
 .app-container {
-  display: grid;
-  grid-template-columns: 340px 1fr;
-  gap: 20px;
-  padding: 20px;
-  max-width: 1600px;
-  margin: 0 auto;
-  min-height: calc(100vh - 100px);
+  display:grid; grid-template-columns:340px 1fr; gap:20px;
+  padding:20px; max-width:1600px; margin:0 auto;
+  min-height:calc(100vh - 120px);
 }
 
-/* ===== Sidebar ===== */
 .sidebar {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-  max-height: calc(100vh - 140px);
-  overflow-y: auto;
+  background:white; border-radius:12px; padding:20px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.08);
+  max-height:calc(100vh - 160px); overflow-y:auto;
 }
-
 .sidebar h2 {
-  font-size: 1.2rem;
-  margin-bottom: 15px;
-  color: #4a5568;
-  border-bottom: 2px solid #667eea;
-  padding-bottom: 8px;
+  font-size:1.1rem; margin-bottom:15px; color:#4a5568;
+  border-bottom:2px solid #667eea; padding-bottom:8px;
 }
 
-.section {
-  padding: 12px 0;
-  border-bottom: 1px solid #edf2f7;
-}
-.section:last-child { border-bottom: none; }
-
+.section { padding:12px 0; border-bottom:1px solid #edf2f7; }
+.section:last-child { border-bottom:none; }
 .section label {
-  display: block;
-  font-size: 0.9rem;
-  color: #4a5568;
-  margin-bottom: 6px;
-  font-weight: 600;
+  display:block; font-size:.85rem; color:#4a5568;
+  margin-bottom:6px; font-weight:600;
 }
-
 .section textarea,
 .section input[type="text"],
 .section input[type="url"],
 .section select {
-  width: 100%;
-  padding: 8px 10px;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  margin-bottom: 8px;
-  transition: border 0.2s;
-  background: #fff;
+  width:100%; padding:8px 10px;
+  border:1.5px solid #e2e8f0; border-radius:8px;
+  font-size:.9rem; margin-bottom:8px; background:#fff;
+  transition:border .2s;
 }
-
 .section textarea {
-  min-height: 80px;
-  resize: vertical;
-  font-family: inherit;
+  min-height:80px; resize:vertical; font-family:inherit;
 }
-
 .section input:focus,
 .section textarea:focus,
 .section select:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+  outline:none; border-color:#667eea;
+  box-shadow:0 0 0 3px rgba(102,126,234,.1);
 }
-
 .section input[type="range"] {
-  width: 100%;
-  margin: 5px 0;
-  accent-color: #667eea;
+  width:100%; margin:5px 0; accent-color:#667eea;
 }
-
 .section input[type="color"] {
-  width: 50px;
-  height: 35px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  vertical-align: middle;
+  width:50px; height:35px; border:none;
+  border-radius:6px; cursor:pointer; vertical-align:middle;
 }
-
 .section span {
-  font-size: 0.85rem;
-  color: #718096;
-  display: inline-block;
-  margin-bottom: 8px;
+  font-size:.8rem; color:#718096;
+  display:inline-block; margin-bottom:8px;
 }
 
-/* ===== Buttons ===== */
 button {
-  cursor: pointer;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 14px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  width: 100%;
-  margin-bottom: 6px;
-  transition: all 0.2s;
-  font-family: inherit;
+  cursor:pointer; border:none; border-radius:8px;
+  padding:10px 14px; font-size:.9rem; font-weight:600;
+  width:100%; margin-bottom:6px; transition:all .2s;
+  font-family:inherit;
 }
+.btn-primary { background:#667eea; color:white; }
+.btn-primary:hover { background:#5568d3; transform:translateY(-1px); }
+.btn-success { background:#48bb78; color:white; }
+.btn-success:hover { background:#38a169; transform:translateY(-1px); }
+.btn-danger  { background:#f56565; color:white; }
+.btn-danger:hover { background:#e53e3e; transform:translateY(-1px); }
+.btn-secondary { background:#edf2f7; color:#4a5568; }
+.btn-secondary:hover { background:#e2e8f0; }
 
-.btn-primary { background: #667eea; color: white; }
-.btn-primary:hover { background: #5568d3; transform: translateY(-1px); }
-.btn-success { background: #48bb78; color: white; }
-.btn-success:hover { background: #38a169; transform: translateY(-1px); }
-.btn-danger { background: #f56565; color: white; }
-.btn-danger:hover { background: #e53e3e; transform: translateY(-1px); }
-.btn-secondary { background: #edf2f7; color: #4a5568; }
-.btn-secondary:hover { background: #e2e8f0; }
+.actions { padding-top:15px; }
 
-.actions { padding-top: 15px; }
-
-/* ===== Preview ===== */
 .preview-area {
-  background: #e2e8f0;
-  border-radius: 12px;
-  padding: 30px;
-  overflow-y: auto;
-  max-height: calc(100vh - 140px);
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  background:#e2e8f0; border-radius:12px; padding:30px;
+  overflow-y:auto; max-height:calc(100vh - 160px);
+  display:flex; justify-content:center; align-items:flex-start;
 }
-
 .pdf-page {
-  background: white;
-  width: 210mm;
-  min-height: 297mm;
-  padding: 20mm;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-  border-radius: 4px;
-  word-wrap: break-word;
-  transition: background 0.3s;
+  background:white; width:210mm; min-height:297mm; padding:20mm;
+  box-shadow:0 4px 20px rgba(0,0,0,.15); border-radius:4px;
+  word-wrap:break-word; transition:background .3s;
 }
-
 .pdf-page .placeholder {
-  color: #a0aec0;
-  text-align: center;
-  margin-top: 40%;
-  font-style: italic;
+  color:#a0aec0; text-align:center;
+  margin-top:40%; font-style:italic;
 }
 
-/* ===== عناصر PDF ===== */
 .pdf-text {
-  margin-bottom: 10px;
-  line-height: 1.6;
-  word-wrap: break-word;
-  white-space: pre-wrap;
+  margin-bottom:10px; line-height:1.6;
+  word-wrap:break-word; white-space:pre-wrap;
 }
-
-.pdf-image {
-  max-width: 100%;
-  margin: 10px 0;
-  border-radius: 6px;
-  display: block;
-}
-
-.pdf-line {
-  border: none;
-  border-top: 2px solid #333;
-  margin: 15px 0;
-}
-
-.pdf-space { height: 30px; }
-
+.pdf-image { max-width:100%; margin:10px 0; border-radius:6px; display:block; }
+.pdf-line  { border:none; border-top:2px solid #333; margin:15px 0; }
+.pdf-space { height:30px; }
 .pdf-page-break {
-  page-break-after: always;
-  border-top: 2px dashed #cbd5e0;
-  margin: 20px 0;
-  position: relative;
+  page-break-after:always; border-top:2px dashed #cbd5e0;
+  margin:20px 0; position:relative;
 }
-
 .pdf-page-break::after {
-  content: "✂ فاصل صفحة";
-  position: absolute;
-  top: -12px;
-  right: 50%;
-  transform: translateX(50%);
-  background: white;
-  padding: 0 10px;
-  color: #a0aec0;
-  font-size: 0.75rem;
+  content:"✂ فاصل صفحة"; position:absolute; top:-12px;
+  right:50%; transform:translateX(50%);
+  background:white; padding:0 10px;
+  color:#a0aec0; font-size:.75rem;
 }
 
-/* ===== Toast ===== */
+.image-wrapper { position:relative; }
+.img-del-btn {
+  display:block; width:auto; margin:5px auto; padding:4px 12px;
+  background:#fed7d7; color:#c53030; font-size:.75rem;
+  border-radius:6px; font-weight:600;
+}
+.img-del-btn:hover { background:#fc8181; color:white; }
+
 .toast {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  background: #2d3748;
-  color: white;
-  padding: 14px 22px;
-  border-radius: 10px;
-  font-weight: 600;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.3s;
-  z-index: 9999;
-  max-width: 320px;
+  position:fixed; bottom:30px; right:30px;
+  background:#2d3748; color:white; padding:14px 22px;
+  border-radius:10px; font-weight:600;
+  box-shadow:0 8px 25px rgba(0,0,0,.2);
+  opacity:0; transform:translateY(20px);
+  transition:all .3s; z-index:9999; max-width:320px;
 }
-.toast.show { opacity: 1; transform: translateY(0); }
-.toast.success { background: #38a169; }
-.toast.error { background: #e53e3e; }
-.toast.info { background: #3182ce; }
+.toast.show { opacity:1; transform:translateY(0); }
+.toast.success { background:#38a169; }
+.toast.error   { background:#e53e3e; }
+.toast.info    { background:#3182ce; }
 
-/* ===== Responsive ===== */
-@media (max-width: 900px) {
-  .app-container {
-    grid-template-columns: 1fr;
-    padding: 10px;
-  }
-  .sidebar { max-height: none; }
-  .preview-area { padding: 15px; }
-  .pdf-page {
-    width: 100%;
-    padding: 15px;
-    min-height: auto;
-  }
-  .toast { right: 15px; left: 15px; bottom: 15px; }
+@media (max-width:900px) {
+  .app-container { grid-template-columns:1fr; padding:10px; }
+  .sidebar { max-height:none; }
+  .preview-area { padding:15px; }
+  .pdf-page { width:100%; padding:15px; min-height:auto; }
+  .toast { right:15px; left:15px; bottom:15px; }
 }
 </style>
 </head>
@@ -271,23 +168,21 @@ button {
 
 <header>
   <h1>📄 منشئ ملفات PDF الاحترافي</h1>
-  <p>أنشئ ملفات PDF بالنصوص والصور مع تحكم كامل</p>
+  <p>يدعم العربي بشكل صحيح + حفظ تلقائي</p>
+  <div id="saveStatus" class="save-status">✅ جاهز</div>
 </header>
 
 <div class="app-container">
 
-  <!-- ===== لوحة التحكم ===== -->
   <aside class="sidebar">
     <h2>⚙️ لوحة التحكم</h2>
 
-    <!-- إضافة نص -->
     <div class="section">
       <label>📝 إضافة نص:</label>
       <textarea id="textInput" placeholder="اكتب النص هنا... (Ctrl+Enter للإضافة)"></textarea>
       <button id="addTextBtn" class="btn-primary">➕ إضافة النص</button>
     </div>
 
-    <!-- الخط -->
     <div class="section">
       <label>🔤 نوع الخط:</label>
       <select id="fontFamily">
@@ -317,9 +212,8 @@ button {
       </select>
     </div>
 
-    <!-- الصور -->
     <div class="section">
-      <label>🖼️ رفع صورة من الجهاز:</label>
+      <label>🖼️ رفع صورة:</label>
       <input type="file" id="imageUpload" accept="image/*" multiple>
 
       <label>🔗 أو من رابط:</label>
@@ -338,7 +232,6 @@ button {
       </select>
     </div>
 
-    <!-- عناصر إضافية -->
     <div class="section">
       <label>➕ عناصر إضافية:</label>
       <button id="addPageBreak" class="btn-secondary">✂ فاصل صفحة</button>
@@ -346,11 +239,10 @@ button {
       <button id="addSpace" class="btn-secondary">⬇ مسافة</button>
     </div>
 
-    <!-- إعدادات الصفحة -->
     <div class="section">
       <label>📄 حجم الصفحة:</label>
       <select id="pageSize">
-        <option value="a4">A4 (210×297mm)</option>
+        <option value="a4">A4</option>
         <option value="letter">Letter</option>
         <option value="a3">A3</option>
         <option value="a5">A5</option>
@@ -366,14 +258,12 @@ button {
       <input type="color" id="bgColor" value="#ffffff">
     </div>
 
-    <!-- الأزرار الرئيسية -->
     <div class="section actions">
       <button id="downloadBtn" class="btn-success">💾 تحميل PDF</button>
       <button id="clearBtn" class="btn-danger">🗑️ مسح الكل</button>
     </div>
   </aside>
 
-  <!-- ===== منطقة المعاينة ===== -->
   <main class="preview-area">
     <div id="pdfContent" class="pdf-page">
       <p class="placeholder">ابدأ بإضافة نص أو صورة من لوحة التحكم ✨</p>
@@ -382,49 +272,59 @@ button {
 
 </div>
 
-<!-- Toast Notification -->
 <div id="toast" class="toast"></div>
 
 <script>
-/* ============================================
-   منشئ ملفات PDF - JavaScript
-   ============================================ */
+/* ==========================================
+   منشئ PDF - النسخة المُحسّنة
+   ✅ عربي صحيح في PDF
+   ✅ حفظ تلقائي في localStorage
+========================================== */
+
+const { jsPDF } = window.jspdf;
 
 // ===== عناصر DOM =====
-const pdfContent    = document.getElementById('pdfContent');
-const textInput     = document.getElementById('textInput');
-const addTextBtn    = document.getElementById('addTextBtn');
-const fontFamily    = document.getElementById('fontFamily');
-const fontSize      = document.getElementById('fontSize');
-const fontSizeValue = document.getElementById('fontSizeValue');
-const fontColor     = document.getElementById('fontColor');
-const textAlign     = document.getElementById('textAlign');
-const imageUpload   = document.getElementById('imageUpload');
-const imageUrl      = document.getElementById('imageUrl');
-const addUrlBtn     = document.getElementById('addUrlBtn');
-const imageSize     = document.getElementById('imageSize');
-const imageSizeValue= document.getElementById('imageSizeValue');
-const imageAlign    = document.getElementById('imageAlign');
-const downloadBtn   = document.getElementById('downloadBtn');
-const clearBtn      = document.getElementById('clearBtn');
-const bgColor       = document.getElementById('bgColor');
-const pageSize      = document.getElementById('pageSize');
+const pdfContent   = document.getElementById('pdfContent');
+const textInput    = document.getElementById('textInput');
+const addTextBtn   = document.getElementById('addTextBtn');
+const fontFamily   = document.getElementById('fontFamily');
+const fontSize     = document.getElementById('fontSize');
+const fontSizeValue= document.getElementById('fontSizeValue');
+const fontColor    = document.getElementById('fontColor');
+const textAlign    = document.getElementById('textAlign');
+const imageUpload  = document.getElementById('imageUpload');
+const imageUrl     = document.getElementById('imageUrl');
+const addUrlBtn    = document.getElementById('addUrlBtn');
+const imageSize    = document.getElementById('imageSize');
+const imageSizeValue=document.getElementById('imageSizeValue');
+const imageAlign   = document.getElementById('imageAlign');
+const downloadBtn  = document.getElementById('downloadBtn');
+const clearBtn     = document.getElementById('clearBtn');
+const bgColor      = document.getElementById('bgColor');
+const pageSize     = document.getElementById('pageSize');
 const pageOrientation = document.getElementById('pageOrientation');
-const toastEl       = document.getElementById('toast');
+const toastEl      = document.getElementById('toast');
+const saveStatus   = document.getElementById('saveStatus');
 
+const STORAGE_KEY = 'pdfMakerProject_v1';
 let isPlaceholderRemoved = false;
+let saveTimer = null;
 
-// ===== دالة التنبيهات (Toast) =====
-function showToast(message, type = 'info', duration = 3000) {
-  toastEl.textContent = message;
+// ===== Toast =====
+function showToast(msg, type='info', dur=3000) {
+  toastEl.textContent = msg;
   toastEl.className = 'toast show ' + type;
-  clearTimeout(toastEl._timer);
-  toastEl._timer = setTimeout(() => {
-    toastEl.className = 'toast ' + type;
-  }, duration);
+  clearTimeout(toastEl._t);
+  toastEl._t = setTimeout(() => toastEl.className = 'toast ' + type, dur);
 }
 
-// ===== إزالة النص الافتراضي =====
+// ===== Save Status UI =====
+function setSaveStatus(text, cls='') {
+  saveStatus.textContent = text;
+  saveStatus.className = 'save-status ' + cls;
+}
+
+// ===== Placeholder =====
 function removePlaceholder() {
   if (!isPlaceholderRemoved) {
     const ph = pdfContent.querySelector('.placeholder');
@@ -433,7 +333,152 @@ function removePlaceholder() {
   }
 }
 
-// ===== إضافة نص =====
+/* ==========================================
+   💾 الحفظ والاسترجاع (localStorage)
+========================================== */
+function gatherProject() {
+  const elements = [];
+  Array.from(pdfContent.children).forEach(el => {
+    if (el.classList.contains('placeholder')) return;
+
+    if (el.classList.contains('pdf-text')) {
+      elements.push({
+        type: 'text',
+        content: el.textContent,
+        style: {
+          fontFamily: el.style.fontFamily,
+          fontSize: el.style.fontSize,
+          color: el.style.color,
+          textAlign: el.style.textAlign
+        }
+      });
+    } else if (el.classList.contains('image-wrapper')) {
+      const img = el.querySelector('img');
+      if (img) {
+        elements.push({
+          type: 'image',
+          src: img.src,
+          width: img.style.width,
+          align: el.style.textAlign
+        });
+      }
+    } else if (el.classList.contains('pdf-page-break')) {
+      elements.push({ type: 'pagebreak' });
+    } else if (el.classList.contains('pdf-line')) {
+      elements.push({ type: 'line' });
+    } else if (el.classList.contains('pdf-space')) {
+      elements.push({ type: 'space' });
+    }
+  });
+
+  return {
+    elements,
+    settings: {
+      fontFamily: fontFamily.value,
+      fontSize: fontSize.value,
+      fontColor: fontColor.value,
+      textAlign: textAlign.value,
+      imageSize: imageSize.value,
+      imageAlign: imageAlign.value,
+      bgColor: bgColor.value,
+      pageSize: pageSize.value,
+      pageOrientation: pageOrientation.value,
+      isPlaceholderRemoved
+    },
+    timestamp: Date.now()
+  };
+}
+
+function saveProject() {
+  setSaveStatus('💾 جاري الحفظ...', 'saving');
+  try {
+    const data = gatherProject();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    setTimeout(() => setSaveStatus('✅ تم الحفظ'), 100);
+    setTimeout(() => setSaveStatus('✅ جاهز'), 1500);
+  } catch (e) {
+    console.error('Save error:', e);
+    if (e.name === 'QuotaExceededError') {
+      setSaveStatus('⚠️ المساحة ممتلئة');
+      showToast('⚠️ المساحة التخزينية ممتلئة. امسح بعض الصور الكبيرة.', 'error', 5000);
+    } else {
+      setSaveStatus('❌ فشل الحفظ');
+    }
+  }
+}
+
+// حفظ مؤجل (debounce) لتجنب الضغط على localStorage
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveProject, 500);
+}
+
+function loadProject() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return false;
+
+  try {
+    const data = JSON.parse(raw);
+
+    // استرجاع الإعدادات
+    if (data.settings) {
+      const s = data.settings;
+      fontFamily.value   = s.fontFamily   || fontFamily.value;
+      fontSize.value     = s.fontSize     || fontSize.value;
+      fontSizeValue.textContent = fontSize.value + 'px';
+      fontColor.value    = s.fontColor    || '#000000';
+      textAlign.value    = s.textAlign    || 'right';
+      imageSize.value    = s.imageSize    || 250;
+      imageSizeValue.textContent = imageSize.value + 'px';
+      imageAlign.value   = s.imageAlign   || 'center';
+      bgColor.value      = s.bgColor      || '#ffffff';
+      pageSize.value     = s.pageSize     || 'a4';
+      pageOrientation.value = s.pageOrientation || 'portrait';
+      pdfContent.style.background = bgColor.value;
+    }
+
+    // استرجاع العناصر
+    if (data.elements && data.elements.length) {
+      pdfContent.innerHTML = '';
+      isPlaceholderRemoved = true;
+
+      data.elements.forEach(item => {
+        if (item.type === 'text') {
+          const p = document.createElement('p');
+          p.className = 'pdf-text';
+          p.textContent = item.content;
+          p.style.fontFamily = item.style.fontFamily;
+          p.style.fontSize   = item.style.fontSize;
+          p.style.color      = item.style.color;
+          p.style.textAlign  = item.style.textAlign;
+          pdfContent.appendChild(p);
+        } else if (item.type === 'image') {
+          addImage(item.src, item.width, item.align, false);
+        } else if (item.type === 'pagebreak') {
+          const d = document.createElement('div');
+          d.className = 'pdf-page-break';
+          pdfContent.appendChild(d);
+        } else if (item.type === 'line') {
+          const hr = document.createElement('hr');
+          hr.className = 'pdf-line';
+          pdfContent.appendChild(hr);
+        } else if (item.type === 'space') {
+          const d = document.createElement('div');
+          d.className = 'pdf-space';
+          pdfContent.appendChild(d);
+        }
+      });
+    }
+    return true;
+  } catch (e) {
+    console.error('Load error:', e);
+    return false;
+  }
+}
+
+/* ==========================================
+   📝 إضافة نص
+========================================== */
 addTextBtn.addEventListener('click', () => {
   const text = textInput.value.trim();
   if (!text) {
@@ -456,36 +501,49 @@ addTextBtn.addEventListener('click', () => {
   textInput.value = '';
   textInput.focus();
   showToast('✅ تم إضافة النص', 'success', 1500);
+  scheduleSave();
 });
 
-// ===== تحديث قيم الشرائح =====
 fontSize.addEventListener('input', () => {
   fontSizeValue.textContent = fontSize.value + 'px';
+  scheduleSave();
 });
 imageSize.addEventListener('input', () => {
   imageSizeValue.textContent = imageSize.value + 'px';
+  scheduleSave();
 });
 
-// ===== رفع الصور من الجهاز =====
+// حفظ الإعدادات عند تغييرها
+[fontFamily, fontColor, textAlign, imageAlign, pageSize, pageOrientation].forEach(el => {
+  el.addEventListener('change', scheduleSave);
+});
+bgColor.addEventListener('input', () => {
+  pdfContent.style.background = bgColor.value;
+  scheduleSave();
+});
+
+/* ==========================================
+   🖼️ الصور
+========================================== */
 imageUpload.addEventListener('change', (e) => {
   const files = Array.from(e.target.files);
   if (!files.length) return;
 
   removePlaceholder();
-  let loadedCount = 0;
+  let loaded = 0;
 
   files.forEach(file => {
     if (!file.type.startsWith('image/')) {
       showToast('⚠️ الملف ليس صورة: ' + file.name, 'error');
       return;
     }
-
     const reader = new FileReader();
     reader.onload = (ev) => {
-      addImage(ev.target.result);
-      loadedCount++;
-      if (loadedCount === files.length) {
-        showToast(`✅ تم تحميل ${loadedCount} صورة`, 'success');
+      addImage(ev.target.result, null, null, true);
+      loaded++;
+      if (loaded === files.length) {
+        showToast(`✅ تم تحميل ${loaded} صورة`, 'success');
+        scheduleSave();
       }
     };
     reader.onerror = () => showToast('❌ فشل تحميل: ' + file.name, 'error');
@@ -495,7 +553,6 @@ imageUpload.addEventListener('change', (e) => {
   imageUpload.value = '';
 });
 
-// ===== إضافة صورة من رابط =====
 addUrlBtn.addEventListener('click', () => {
   const url = imageUrl.value.trim();
   if (!url) {
@@ -503,146 +560,201 @@ addUrlBtn.addEventListener('click', () => {
     return;
   }
 
-  showToast('⏳ جاري تحميل الصورة...', 'info', 2000);
-
+  showToast('⏳ جاري التحميل...', 'info', 2000);
   const testImg = new Image();
   testImg.crossOrigin = 'anonymous';
   testImg.onload = () => {
     removePlaceholder();
-    addImage(url);
+    addImage(url, null, null, true);
     imageUrl.value = '';
-    showToast('✅ تم إضافة الصورة من الرابط', 'success');
+    showToast('✅ تم إضافة الصورة', 'success');
+    scheduleSave();
   };
   testImg.onerror = () => {
-    showToast('❌ تعذّر تحميل الصورة. قد يكون الرابط خاطئاً أو الموقع يمنع CORS', 'error', 5000);
+    showToast('❌ تعذّر التحميل. جرّب رفع الصورة من الجهاز أو استخدم رابطاً يدعم CORS', 'error', 5000);
   };
   testImg.src = url;
 });
 
-// ===== دالة إضافة صورة =====
-function addImage(src) {
+function addImage(src, width, align, shouldSave=true) {
   const wrapper = document.createElement('div');
   wrapper.className = 'image-wrapper';
-  wrapper.style.textAlign = imageAlign.value;
+  wrapper.style.textAlign = align || imageAlign.value;
   wrapper.style.margin = '10px 0';
 
   const img = document.createElement('img');
   img.src = src;
   img.className = 'pdf-image';
-  img.style.width = imageSize.value + 'px';
+  img.style.width = width || (imageSize.value + 'px');
   img.style.display = 'inline-block';
   img.style.maxWidth = '100%';
   img.crossOrigin = 'anonymous';
 
-  // زر حذف الصورة
   const delBtn = document.createElement('button');
   delBtn.textContent = '✖ حذف الصورة';
   delBtn.className = 'img-del-btn';
-  delBtn.style.cssText = `
-    display: block; width: auto; margin: 5px auto; padding: 4px 12px;
-    background: #fed7d7; color: #c53030; font-size: 0.75rem;
-    border-radius: 6px; font-weight: 600;
-  `;
   delBtn.onclick = () => {
     wrapper.remove();
     showToast('🗑️ تم حذف الصورة', 'info', 1200);
+    scheduleSave();
   };
 
   wrapper.appendChild(img);
   wrapper.appendChild(delBtn);
   pdfContent.appendChild(wrapper);
+
+  if (shouldSave) scheduleSave();
 }
 
-// ===== عناصر إضافية =====
+/* ==========================================
+   ➕ عناصر إضافية
+========================================== */
 document.getElementById('addPageBreak').addEventListener('click', () => {
   removePlaceholder();
-  const div = document.createElement('div');
-  div.className = 'pdf-page-break';
-  pdfContent.appendChild(div);
+  const d = document.createElement('div');
+  d.className = 'pdf-page-break';
+  pdfContent.appendChild(d);
   showToast('✂ تم إضافة فاصل صفحة', 'info', 1200);
+  scheduleSave();
 });
-
 document.getElementById('addLine').addEventListener('click', () => {
   removePlaceholder();
   const hr = document.createElement('hr');
   hr.className = 'pdf-line';
   pdfContent.appendChild(hr);
+  scheduleSave();
 });
-
 document.getElementById('addSpace').addEventListener('click', () => {
   removePlaceholder();
-  const div = document.createElement('div');
-  div.className = 'pdf-space';
-  pdfContent.appendChild(div);
+  const d = document.createElement('div');
+  d.className = 'pdf-space';
+  pdfContent.appendChild(d);
+  scheduleSave();
 });
 
-// ===== تغيير خلفية PDF =====
-bgColor.addEventListener('input', () => {
-  pdfContent.style.background = bgColor.value;
-});
-
-// ===== مسح الكل =====
+/* ==========================================
+   🗑️ مسح الكل
+========================================== */
 clearBtn.addEventListener('click', () => {
-  if (!confirm('هل تريد مسح كل المحتوى؟')) return;
+  if (!confirm('هل تريد مسح كل المحتوى؟ (لا يمكن التراجع)')) return;
   pdfContent.innerHTML = '<p class="placeholder">ابدأ بإضافة نص أو صورة من لوحة التحكم ✨</p>';
   pdfContent.style.background = '#ffffff';
   bgColor.value = '#ffffff';
   isPlaceholderRemoved = false;
+  localStorage.removeItem(STORAGE_KEY);
   showToast('🗑️ تم مسح كل المحتوى', 'info');
 });
 
-// ===== تحميل PDF =====
-downloadBtn.addEventListener('click', () => {
+/* ==========================================
+   💾 تصدير PDF مع دعم صحيح للعربي
+   
+   الطريقة: تحويل كل عنصر على حدة إلى صورة
+   عالية الدقة عبر html2canvas، ثم إضافتها إلى jsPDF.
+   هذا يحل مشكلة العربي المقلوب/المشوّش نهائياً.
+========================================== */
+downloadBtn.addEventListener('click', async () => {
   if (!isPlaceholderRemoved) {
     showToast('⚠️ لا يوجد محتوى لتصديره', 'error');
     return;
   }
 
-  // إخفاء أزرار حذف الصور مؤقتاً
   const delButtons = pdfContent.querySelectorAll('.img-del-btn');
   delButtons.forEach(b => b.style.display = 'none');
-
-  const opt = {
-    margin: 0,
-    filename: 'my-document-' + Date.now() + '.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: {
-      scale: 2,
-      useCORS: true,
-      allowTaint: false,
-      backgroundColor: bgColor.value,
-      logging: false,
-      scrollY: 0,
-      scrollX: 0
-    },
-    jsPDF: {
-      unit: 'mm',
-      format: pageSize.value,
-      orientation: pageOrientation.value
-    },
-    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-  };
 
   downloadBtn.textContent = '⏳ جاري التحضير...';
   downloadBtn.disabled = true;
 
-  html2pdf().set(opt).from(pdfContent).save()
-    .then(() => {
-      downloadBtn.textContent = '💾 تحميل PDF';
-      downloadBtn.disabled = false;
-      delButtons.forEach(b => b.style.display = 'block');
-      showToast('✅ تم تحميل PDF بنجاح', 'success');
-    })
-    .catch(err => {
-      console.error(err);
-      downloadBtn.textContent = '💾 تحميل PDF';
-      downloadBtn.disabled = false;
-      delButtons.forEach(b => b.style.display = 'block');
-      showToast('❌ حدث خطأ أثناء إنشاء PDF', 'error');
+  try {
+    // إعدادات PDF
+    const orientation = pageOrientation.value; // portrait | landscape
+    const formatMap = { a4:[210,297], a3:[297,420], a5:[148,210], letter:[216,279] };
+    const [fw, fh] = formatMap[pageSize.value] || [210,297];
+
+    const pdf = new jsPDF({
+      orientation: orientation,
+      unit: 'mm',
+      format: pageSize.value
     });
+
+    const pdfWidth  = orientation === 'portrait' ? fw : fh;
+    const pdfHeight = orientation === 'portrait' ? fh : fw;
+
+    // أبعاد صفحة المعاينة
+    const pageRect = pdfContent.getBoundingClientRect();
+    const pageWidthCss  = pdfContent.offsetWidth;
+    const pageHeightCss = pdfContent.offsetHeight;
+
+    // تحويل كل الصفحة إلى صورة عالية الدقة
+    // نستخدم scale=3 لدقة ممتازة مع العربي
+    const canvas = await html2canvas(pdfContent, {
+      scale: 3,
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: bgColor.value,
+      logging: false,
+      windowWidth: pageWidthCss,
+      windowHeight: pageHeightCss,
+      onclone: (clonedDoc) => {
+        // ضمان ظهور الخطوط في النسخة المستنسخة
+        const clonedPage = clonedDoc.getElementById('pdfContent');
+        clonedPage.style.width = pageWidthCss + 'px';
+        clonedPage.style.minHeight = 'auto';
+        clonedPage.style.boxShadow = 'none';
+        clonedPage.style.borderRadius = '0';
+        clonedPage.style.margin = '0';
+      }
+    });
+
+    // حساب الأبعاد لتناسب العرض في PDF
+    const imgWidth = pdfWidth;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    // تقسيم الصورة إلى صفحات إذا كانت طويلة
+    const pageHeightInPdf = pdfHeight;
+    const totalPages = Math.ceil(imgHeight / pageHeightInPdf);
+
+    for (let page = 0; page < totalPages; page++) {
+      if (page > 0) pdf.addPage();
+
+      // اقتصاص الجزء الخاص بهذه الصفحة من الـ canvas
+      const sourceY = (page * pageHeightInPdf * canvas.width) / imgWidth;
+      const sourceH = Math.min(
+        (pageHeightInPdf * canvas.width) / imgWidth,
+        canvas.height - sourceY
+      );
+
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = canvas.width;
+      tempCanvas.height = sourceH;
+      const ctx = tempCanvas.getContext('2d');
+      ctx.fillStyle = bgColor.value;
+      ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+      ctx.drawImage(
+        canvas,
+        0, sourceY, canvas.width, sourceH,
+        0, 0, canvas.width, sourceH
+      );
+
+      const imgData = tempCanvas.toDataURL('image/jpeg', 0.95);
+      const thisPageHeight = (sourceH * imgWidth) / canvas.width;
+      pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, thisPageHeight);
+    }
+
+    pdf.save('my-document-' + Date.now() + '.pdf');
+    showToast('✅ تم تحميل PDF بنجاح', 'success');
+  } catch (err) {
+    console.error(err);
+    showToast('❌ حدث خطأ أثناء إنشاء PDF', 'error');
+  } finally {
+    downloadBtn.textContent = '💾 تحميل PDF';
+    downloadBtn.disabled = false;
+    delButtons.forEach(b => b.style.display = 'block');
+  }
 });
 
-// ===== اختصار Ctrl+Enter لإضافة النص =====
+/* ==========================================
+   ⌨️ اختصارات
+========================================== */
 textInput.addEventListener('keydown', (e) => {
   if (e.ctrlKey && e.key === 'Enter') {
     e.preventDefault();
@@ -650,11 +762,36 @@ textInput.addEventListener('keydown', (e) => {
   }
 });
 
-// ===== رسالة ترحيب =====
+/* ==========================================
+   🚀 تحميل المشروع عند فتح الموقع
+========================================== */
 window.addEventListener('load', () => {
-  showToast('👋 مرحباً! ابدأ بإضافة نص أو صورة', 'info', 3000);
+  // انتظر تحميل الخطوط
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => {
+      const loaded = loadProject();
+      if (loaded) {
+        showToast('📂 تم استرجاع آخر مشروع', 'success', 2500);
+        setSaveStatus('✅ تم الاسترجاع');
+        setTimeout(() => setSaveStatus('✅ جاهز'), 2000);
+      } else {
+        showToast('👋 مرحباً! ابدأ بإضافة نص أو صورة', 'info', 3000);
+      }
+    });
+  } else {
+    const loaded = loadProject();
+    if (loaded) showToast('📂 تم استرجاع آخر مشروع', 'success', 2500);
+  }
+});
+
+// حفظ عند إغلاق الصفحة
+window.addEventListener('beforeunload', () => {
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveProject();
+  }
 });
 </script>
 
 </body>
-</html
+</html>
