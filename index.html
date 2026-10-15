@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📄 منشئ ملفات PDF الاحترافي</title>
+
+<!-- مكتبة html2pdf لإنشاء PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+/* ===== الخطوط ===== */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Amiri:wght@400;700&family=Tajawal:wght@400;700&display=swap');
+
+/* ===== Reset ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Cairo', 'Segoe UI', sans-serif;
+}
+
+body {
+  background: #f0f2f5;
+  color: #333;
+  min-height: 100vh;
+}
+
+header {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+header h1 { font-size: 1.8rem; margin-bottom: 5px; }
+header p { opacity: 0.9; font-size: 0.95rem; }
+
+/* ===== Layout ===== */
+.app-container {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 20px;
+  padding: 20px;
+  max-width: 1600px;
+  margin: 0 auto;
+  min-height: calc(100vh - 100px);
+}
+
+/* ===== Sidebar ===== */
+.sidebar {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
+}
+
+.sidebar h2 {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  color: #4a5568;
+  border-bottom: 2px solid #667eea;
+  padding-bottom: 8px;
+}
+
+.section {
+  padding: 12px 0;
+  border-bottom: 1px solid #edf2f7;
+}
+.section:last-child { border-bottom: none; }
+
+.section label {
+  display: block;
+  font-size: 0.9rem;
+  color: #4a5568;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.section textarea,
+.section input[type="text"],
+.section input[type="url"],
+.section select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  transition: border 0.2s;
+  background: #fff;
+}
+
+.section textarea {
+  min-height: 80px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.section input:focus,
+.section textarea:focus,
+.section select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+}
+
+.section input[type="range"] {
+  width: 100%;
+  margin: 5px 0;
+  accent-color: #667eea;
+}
+
+.section input[type="color"] {
+  width: 50px;
+  height: 35px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.section span {
+  font-size: 0.85rem;
+  color: #718096;
+  display: inline-block;
+  margin-bottom: 8px;
+}
+
+/* ===== Buttons ===== */
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  width: 100%;
+  margin-bottom: 6px;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.btn-primary { background: #667eea; color: white; }
+.btn-primary:hover { background: #5568d3; transform: translateY(-1px); }
+.btn-success { background: #48bb78; color: white; }
+.btn-success:hover { background: #38a169; transform: translateY(-1px); }
+.btn-danger { background: #f56565; color: white; }
+.btn-danger:hover { background: #e53e3e; transform: translateY(-1px); }
+.btn-secondary { background: #edf2f7; color: #4a5568; }
+.btn-secondary:hover { background: #e2e8f0; }
+
+.actions { padding-top: 15px; }
+
+/* ===== Preview ===== */
+.preview-area {
+  background: #e2e8f0;
+  border-radius: 12px;
+  padding: 30px;
+  overflow-y: auto;
+  max-height: calc(100vh - 140px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.pdf-page {
+  background: white;
+  width: 210mm;
+  min-height: 297mm;
+  padding: 20mm;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  border-radius: 4px;
+  word-wrap: break-word;
+  transition: background 0.3s;
+}
+
+.pdf-page .placeholder {
+  color: #a0aec0;
+  text-align: center;
+  margin-top: 40%;
+  font-style: italic;
+}
+
+/* ===== عناصر PDF ===== */
+.pdf-text {
+  margin-bottom: 10px;
+  line-height: 1.6;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.pdf-image {
+  max-width: 100%;
+  margin: 10px 0;
+  border-radius: 6px;
+  display: block;
+}
+
+.pdf-line {
+  border: none;
+  border-top: 2px solid #333;
+  margin: 15px 0;
+}
+
+.pdf-space { height: 30px; }
+
+.pdf-page-break {
+  page-break-after: always;
+  border-top: 2px dashed #cbd5e0;
+  margin: 20px 0;
+  position: relative;
+}
+
+.pdf-page-break::after {
+  content: "✂ فاصل صفحة";
+  position: absolute;
+  top: -12px;
+  right: 50%;
+  transform: translateX(50%);
+  background: white;
+  padding: 0 10px;
+  color: #a0aec0;
+  font-size: 0.75rem;
+}
+
+/* ===== Toast ===== */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: #2d3748;
+  color: white;
+  padding: 14px 22px;
+  border-radius: 10px;
+  font-weight: 600;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s;
+  z-index: 9999;
+  max-width: 320px;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.success { background: #38a169; }
+.toast.error { background: #e53e3e; }
+.toast.info { background: #3182ce; }
+
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+  .app-container {
+    grid-template-columns: 1fr;
+    padding: 10px;
+  }
+  .sidebar { max-height: none; }
+  .preview-area { padding: 15px; }
+  .pdf-page {
+    width: 100%;
+    padding: 15px;
+    min-height: auto;
+  }
+  .toast { right: 15px; left: 15px; bottom: 15px; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>📄 منشئ ملفات PDF الاحترافي</h1>
+  <p>أنشئ ملفات PDF بالنصوص والصور مع تحكم كامل</p>
+</header>
+
+<div class="app-container">
+
+  <!-- ===== لوحة التحكم ===== -->
+  <aside class="sidebar">
+    <h2>⚙️ لوحة التحكم</h2>
+
+    <!-- إضافة نص -->
+    <div class="section">
+      <label>📝 إضافة نص:</label>
+      <textarea id="textInput" placeholder="اكتب النص هنا... (Ctrl+Enter للإضافة)"></textarea>
+      <button id="addTextBtn" class="btn-primary">➕ إضافة النص</button>
+    </div>
+
+    <!-- الخط -->
+    <div class="section">
+      <label>🔤 نوع الخط:</label>
+      <select id="fontFamily">
+        <option value="Cairo, sans-serif">Cairo (عربي)</option>
+        <option value="Amiri, serif">Amiri (عربي)</option>
+        <option value="Tajawal, sans-serif">Tajawal (عربي)</option>
+        <option value="Arial, sans-serif">Arial</option>
+        <option value="'Times New Roman', serif">Times New Roman</option>
+        <option value="'Courier New', monospace">Courier New</option>
+        <option value="Georgia, serif">Georgia</option>
+        <option value="Verdana, sans-serif">Verdana</option>
+      </select>
+
+      <label>📏 حجم الخط:</label>
+      <input type="range" id="fontSize" min="10" max="72" value="18">
+      <span id="fontSizeValue">18px</span>
+
+      <label>🎨 لون الخط:</label>
+      <input type="color" id="fontColor" value="#000000">
+
+      <label>📐 محاذاة النص:</label>
+      <select id="textAlign">
+        <option value="right">يمين</option>
+        <option value="center">وسط</option>
+        <option value="left">يسار</option>
+        <option value="justify">ضبط</option>
+      </select>
+    </div>
+
+    <!-- الصور -->
+    <div class="section">
+      <label>🖼️ رفع صورة من الجهاز:</label>
+      <input type="file" id="imageUpload" accept="image/*" multiple>
+
+      <label>🔗 أو من رابط:</label>
+      <input type="url" id="imageUrl" placeholder="https://example.com/image.jpg">
+      <button id="addUrlBtn" class="btn-primary">إضافة من الرابط</button>
+
+      <label>📐 حجم الصورة:</label>
+      <input type="range" id="imageSize" min="50" max="600" value="250">
+      <span id="imageSizeValue">250px</span>
+
+      <label>📍 موضع الصورة:</label>
+      <select id="imageAlign">
+        <option value="center">وسط</option>
+        <option value="right">يمين</option>
+        <option value="left">يسار</option>
+      </select>
+    </div>
+
+    <!-- عناصر إضافية -->
+    <div class="section">
+      <label>➕ عناصر إضافية:</label>
+      <button id="addPageBreak" class="btn-secondary">✂ فاصل صفحة</button>
+      <button id="addLine" class="btn-secondary">➖ خط فاصل</button>
+      <button id="addSpace" class="btn-secondary">⬇ مسافة</button>
+    </div>
+
+    <!-- إعدادات الصفحة -->
+    <div class="section">
+      <label>📄 حجم الصفحة:</label>
+      <select id="pageSize">
+        <option value="a4">A4 (210×297mm)</option>
+        <option value="letter">Letter</option>
+        <option value="a3">A3</option>
+        <option value="a5">A5</option>
+      </select>
+
+      <label>🔄 اتجاه الصفحة:</label>
+      <select id="pageOrientation">
+        <option value="portrait">طولي</option>
+        <option value="landscape">عرضي</option>
+      </select>
+
+      <label>🎨 لون خلفية PDF:</label>
+      <input type="color" id="bgColor" value="#ffffff">
+    </div>
+
+    <!-- الأزرار الرئيسية -->
+    <div class="section actions">
+      <button id="downloadBtn" class="btn-success">💾 تحميل PDF</button>
+      <button id="clearBtn" class="btn-danger">🗑️ مسح الكل</button>
+    </div>
+  </aside>
+
+  <!-- ===== منطقة المعاينة ===== -->
+  <main class="preview-area">
+    <div id="pdfContent" class="pdf-page">
+      <p class="placeholder">ابدأ بإضافة نص أو صورة من لوحة التحكم ✨</p>
+    </div>
+  </main>
+
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast"></div>
+
+<script>
+/* ============================================
+   منشئ ملفات PDF - JavaScript
+   ============================================ */
+
+// ===== عناصر DOM =====
+const pdfContent    = document.getElementById('pdfContent');
+const textInput     = document.getElementById('textInput');
+const addTextBtn    = document.getElementById('addTextBtn');
+const fontFamily    = document.getElementById('fontFamily');
+const fontSize      = document.getElementById('fontSize');
+const fontSizeValue = document.getElementById('fontSizeValue');
+const fontColor     = document.getElementById('fontColor');
+const textAlign     = document.getElementById('textAlign');
+const imageUpload   = document.getElementById('imageUpload');
+const imageUrl      = document.getElementById('imageUrl');
+const addUrlBtn     = document.getElementById('addUrlBtn');
+const imageSize     = document.getElementById('imageSize');
+const imageSizeValue= document.getElementById('imageSizeValue');
+const imageAlign    = document.getElementById('imageAlign');
+const downloadBtn   = document.getElementById('downloadBtn');
+const clearBtn      = document.getElementById('clearBtn');
+const bgColor       = document.getElementById('bgColor');
+const pageSize      = document.getElementById('pageSize');
+const pageOrientation = document.getElementById('pageOrientation');
+const toastEl       = document.getElementById('toast');
+
+let isPlaceholderRemoved = false;
+
+// ===== دالة التنبيهات (Toast) =====
+function showToast(message, type = 'info', duration = 3000) {
+  toastEl.textContent = message;
+  toastEl.className = 'toast show ' + type;
+  clearTimeout(toastEl._timer);
+  toastEl._timer = setTimeout(() => {
+    toastEl.className = 'toast ' + type;
+  }, duration);
+}
+
+// ===== إزالة النص الافتراضي =====
+function removePlaceholder() {
+  if (!isPlaceholderRemoved) {
+    const ph = pdfContent.querySelector('.placeholder');
+    if (ph) ph.remove();
+    isPlaceholderRemoved = true;
+  }
+}
+
+// ===== إضافة نص =====
+addTextBtn.addEventListener('click', () => {
+  const text = textInput.value.trim();
+  if (!text) {
+    showToast('⚠️ يرجى إدخال نص أولاً', 'error');
+    textInput.focus();
+    return;
+  }
+
+  removePlaceholder();
+
+  const p = document.createElement('p');
+  p.className = 'pdf-text';
+  p.textContent = text;
+  p.style.fontFamily = fontFamily.value;
+  p.style.fontSize   = fontSize.value + 'px';
+  p.style.color      = fontColor.value;
+  p.style.textAlign  = textAlign.value;
+
+  pdfContent.appendChild(p);
+  textInput.value = '';
+  textInput.focus();
+  showToast('✅ تم إضافة النص', 'success', 1500);
+});
+
+// ===== تحديث قيم الشرائح =====
+fontSize.addEventListener('input', () => {
+  fontSizeValue.textContent = fontSize.value + 'px';
+});
+imageSize.addEventListener('input', () => {
+  imageSizeValue.textContent = imageSize.value + 'px';
+});
+
+// ===== رفع الصور من الجهاز =====
+imageUpload.addEventListener('change', (e) => {
+  const files = Array.from(e.target.files);
+  if (!files.length) return;
+
+  removePlaceholder();
+  let loadedCount = 0;
+
+  files.forEach(file => {
+    if (!file.type.startsWith('image/')) {
+      showToast('⚠️ الملف ليس صورة: ' + file.name, 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      addImage(ev.target.result);
+      loadedCount++;
+      if (loadedCount === files.length) {
+        showToast(`✅ تم تحميل ${loadedCount} صورة`, 'success');
+      }
+    };
+    reader.onerror = () => showToast('❌ فشل تحميل: ' + file.name, 'error');
+    reader.readAsDataURL(file);
+  });
+
+  imageUpload.value = '';
+});
+
+// ===== إضافة صورة من رابط =====
+addUrlBtn.addEventListener('click', () => {
+  const url = imageUrl.value.trim();
+  if (!url) {
+    showToast('⚠️ يرجى إدخال رابط الصورة', 'error');
+    return;
+  }
+
+  showToast('⏳ جاري تحميل الصورة...', 'info', 2000);
+
+  const testImg = new Image();
+  testImg.crossOrigin = 'anonymous';
+  testImg.onload = () => {
+    removePlaceholder();
+    addImage(url);
+    imageUrl.value = '';
+    showToast('✅ تم إضافة الصورة من الرابط', 'success');
+  };
+  testImg.onerror = () => {
+    showToast('❌ تعذّر تحميل الصورة. قد يكون الرابط خاطئاً أو الموقع يمنع CORS', 'error', 5000);
+  };
+  testImg.src = url;
+});
+
+// ===== دالة إضافة صورة =====
+function addImage(src) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'image-wrapper';
+  wrapper.style.textAlign = imageAlign.value;
+  wrapper.style.margin = '10px 0';
+
+  const img = document.createElement('img');
+  img.src = src;
+  img.className = 'pdf-image';
+  img.style.width = imageSize.value + 'px';
+  img.style.display = 'inline-block';
+  img.style.maxWidth = '100%';
+  img.crossOrigin = 'anonymous';
+
+  // زر حذف الصورة
+  const delBtn = document.createElement('button');
+  delBtn.textContent = '✖ حذف الصورة';
+  delBtn.className = 'img-del-btn';
+  delBtn.style.cssText = `
+    display: block; width: auto; margin: 5px auto; padding: 4px 12px;
+    background: #fed7d7; color: #c53030; font-size: 0.75rem;
+    border-radius: 6px; font-weight: 600;
+  `;
+  delBtn.onclick = () => {
+    wrapper.remove();
+    showToast('🗑️ تم حذف الصورة', 'info', 1200);
+  };
+
+  wrapper.appendChild(img);
+  wrapper.appendChild(delBtn);
+  pdfContent.appendChild(wrapper);
+}
+
+// ===== عناصر إضافية =====
+document.getElementById('addPageBreak').addEventListener('click', () => {
+  removePlaceholder();
+  const div = document.createElement('div');
+  div.className = 'pdf-page-break';
+  pdfContent.appendChild(div);
+  showToast('✂ تم إضافة فاصل صفحة', 'info', 1200);
+});
+
+document.getElementById('addLine').addEventListener('click', () => {
+  removePlaceholder();
+  const hr = document.createElement('hr');
+  hr.className = 'pdf-line';
+  pdfContent.appendChild(hr);
+});
+
+document.getElementById('addSpace').addEventListener('click', () => {
+  removePlaceholder();
+  const div = document.createElement('div');
+  div.className = 'pdf-space';
+  pdfContent.appendChild(div);
+});
+
+// ===== تغيير خلفية PDF =====
+bgColor.addEventListener('input', () => {
+  pdfContent.style.background = bgColor.value;
+});
+
+// ===== مسح الكل =====
+clearBtn.addEventListener('click', () => {
+  if (!confirm('هل تريد مسح كل المحتوى؟')) return;
+  pdfContent.innerHTML = '<p class="placeholder">ابدأ بإضافة نص أو صورة من لوحة التحكم ✨</p>';
+  pdfContent.style.background = '#ffffff';
+  bgColor.value = '#ffffff';
+  isPlaceholderRemoved = false;
+  showToast('🗑️ تم مسح كل المحتوى', 'info');
+});
+
+// ===== تحميل PDF =====
+downloadBtn.addEventListener('click', () => {
+  if (!isPlaceholderRemoved) {
+    showToast('⚠️ لا يوجد محتوى لتصديره', 'error');
+    return;
+  }
+
+  // إخفاء أزرار حذف الصور مؤقتاً
+  const delButtons = pdfContent.querySelectorAll('.img-del-btn');
+  delButtons.forEach(b => b.style.display = 'none');
+
+  const opt = {
+    margin: 0,
+    filename: 'my-document-' + Date.now() + '.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: bgColor.value,
+      logging: false,
+      scrollY: 0,
+      scrollX: 0
+    },
+    jsPDF: {
+      unit: 'mm',
+      format: pageSize.value,
+      orientation: pageOrientation.value
+    },
+    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+  };
+
+  downloadBtn.textContent = '⏳ جاري التحضير...';
+  downloadBtn.disabled = true;
+
+  html2pdf().set(opt).from(pdfContent).save()
+    .then(() => {
+      downloadBtn.textContent = '💾 تحميل PDF';
+      downloadBtn.disabled = false;
+      delButtons.forEach(b => b.style.display = 'block');
+      showToast('✅ تم تحميل PDF بنجاح', 'success');
+    })
+    .catch(err => {
+      console.error(err);
+      downloadBtn.textContent = '💾 تحميل PDF';
+      downloadBtn.disabled = false;
+      delButtons.forEach(b => b.style.display = 'block');
+      showToast('❌ حدث خطأ أثناء إنشاء PDF', 'error');
+    });
+});
+
+// ===== اختصار Ctrl+Enter لإضافة النص =====
+textInput.addEventListener('keydown', (e) => {
+  if (e.ctrlKey && e.key === 'Enter') {
+    e.preventDefault();
+    addTextBtn.click();
+  }
+});
+
+// ===== رسالة ترحيب =====
+window.addEventListener('load', () => {
+  showToast('👋 مرحباً! ابدأ بإضافة نص أو صورة', 'info', 3000);
+});
+</script>
+
+</body>
+</html
